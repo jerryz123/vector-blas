@@ -153,34 +153,37 @@
     asm volatile ("vinsert v2, %0, x0" : : "r" (ca->r));
     asm volatile ("vinsert v5, %0, x0" : : "r" (ca->i));
     i__ = 0;
-    ix = 0;
-    iy = 0;
-    float* x = &cx[0];
-    float* y = &cy[0];
+
+
     if (*incx < 0) {
-      ix = (-(*n) + 1) * *incx;
+      cx += (-(*n) + 1) * *incx;
     }
     if (*incy < 0) {
-      iy = (-(*n) + 1) * *incy;
+      cy += (-(*n) + 1) * *incy;
     }
-    while (i__ < *n)
+    int sincx = *incx << 3;
+    int sincy = *incy << 3;
+    int dincx = *incx;
+    int dincy = *incy;
+    int dn = *n;
+    while (i__ < dn)
       {
-        setvl(vl, *n - i__);
-        asm volatile ("vlds  v0, 0(%0), %1" : : "r" (&cx[ix]), "r" (*incx << 3));
-        asm volatile ("vlds  v1, 0(%0), %1" : : "r" (&cy[iy]), "r" (*incy << 3));
-        asm volatile ("vlds  v4, 4(%0), %1" : : "r" (&cx[ix]), "r" (*incx << 3));
-        asm volatile ("vlds  v3, 4(%0), %1" : : "r" (&cy[iy]), "r" (*incy << 3));
+        setvl(vl, dn - i__);
+        asm volatile ("vlds  v0, 0(%0), %1" : : "r" (cx), "r" (sincx));
+        asm volatile ("vlds  v1, 0(%0), %1" : : "r" (cy), "r" (sincy));
+        asm volatile ("vlds  v4, 4(%0), %1" : : "r" (cx), "r" (sincx));
+        asm volatile ("vlds  v3, 4(%0), %1" : : "r" (cy), "r" (sincy));
 
         asm volatile ("vmadd  v1, v2, v0, v1");
         asm volatile ("vnmsub v1, v5, v4, v1");
         asm volatile ("vmadd  v3, v2, v4, v3");
         asm volatile ("vmadd  v3, v5, v0, v3");
-        asm volatile ("vsts  v1, 0(%0), %1" : : "r" (&cy[iy]), "r" (*incy << 3));
-        asm volatile ("vsts  v3, 4(%0), %1" : : "r" (&cy[iy]), "r" (*incy << 3));
+        asm volatile ("vsts  v1, 0(%0), %1" : : "r" (cy), "r" (sincy));
+        asm volatile ("vsts  v3, 4(%0), %1" : : "r" (cy), "r" (sincy));
 
         i__ += vl;
-        ix += vl * (*incx);
-        iy += vl * (*incy);
+        cx += vl * dincx;
+        cy += vl * dincy;
       }
 
     return 0;
