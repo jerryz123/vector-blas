@@ -11,6 +11,7 @@
 */
 
 #include "f2c.h"
+#include "vec-utils.h"
 
 /* > \brief \b CCOPY */
 
@@ -118,45 +119,41 @@
 /*     .. Local Scalars .. */
 /*     .. */
     /* Parameter adjustments */
-    --cy;
-    --cx;
+
 
     /* Function Body */
     if (*n <= 0) {
 	return 0;
     }
-    if (*incx == 1 && *incy == 1) {
-
-/*        code for both increments equal to 1 */
-
-	i__1 = *n;
-	for (i__ = 1; i__ <= i__1; ++i__) {
-	    i__2 = i__;
-	    i__3 = i__;
-	    cy[i__2].r = cx[i__3].r, cy[i__2].i = cx[i__3].i;
-	}
-    } else {
-
-/*        code for unequal increments or equal increments */
-/*          not equal to 1 */
-
-	ix = 1;
-	iy = 1;
-	if (*incx < 0) {
-	    ix = (-(*n) + 1) * *incx + 1;
-	}
-	if (*incy < 0) {
-	    iy = (-(*n) + 1) * *incy + 1;
-	}
-	i__1 = *n;
-	for (i__ = 1; i__ <= i__1; ++i__) {
-	    i__2 = iy;
-	    i__3 = ix;
-	    cy[i__2].r = cx[i__3].r, cy[i__2].i = cx[i__3].i;
-	    ix += *incx;
-	    iy += *incy;
-	}
+    setvcfg0(VFP32, // y[] real
+             VFP32, // x[] real
+             SFP32, // da  real
+             SFP32);// y[] imag
+    int vl = 1;
+    i__ = 0;
+    if (*incx < 0) {
+      cx += (-(*n) + 1) * *incx;
     }
+    if (*incy < 0) {
+      cy += (-(*n) + 1) * *incy;
+    }
+    int sincx = *incx << 3;
+    int sincy = *incy << 3;
+    int dincx = *incx;
+    int dincy = *incy;
+    int dn = *n;
+    while (i__ < dn)
+      {
+        setvl(vl, dn - i__);
+        asm volatile ("vlds  v0, 0(%0), %1" : : "r" (cx), "r" (sincx));
+        asm volatile ("vlds  v1, 4(%0), %1" : : "r" (cx), "r" (sincx));
+        asm volatile ("vsts  v0, 0(%0), %1" : : "r" (cy), "r" (sincy));
+        asm volatile ("vsts  v1, 4(%0), %1" : : "r" (cy), "r" (sincy));
+
+        i__ += vl;
+        cx += vl * dincx;
+        cy += vl * dincy;
+      }
     return 0;
 } /* ccopy_ */
 

@@ -134,12 +134,10 @@
     //--cx;
 
     /* Function Body */
-    if (*n <= 0) {
-	return 0;
-    }
-    if (scabs1_(ca) == 0.f) {
-	return 0;
-    }
+    if (*n <= 0)
+      return 0;
+    if (scabs1_(ca) == 0.f)
+      return 0;
 
     setvcfg0(VFP32, // y[] real
              VFP32, // x[] real
@@ -154,13 +152,12 @@
     asm volatile ("vinsert v5, %0, x0" : : "r" (ca->i));
     i__ = 0;
 
-
-    if (*incx < 0) {
+    if (*incx < 0)
       cx += (-(*n) + 1) * *incx;
-    }
-    if (*incy < 0) {
+
+    if (*incy < 0)
       cy += (-(*n) + 1) * *incy;
-    }
+
     int sincx = *incx << 3;
     int sincy = *incy << 3;
     int dincx = *incx;
