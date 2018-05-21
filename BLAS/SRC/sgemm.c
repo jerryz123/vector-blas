@@ -306,7 +306,6 @@
     }
 
 /*     And if  alpha.eq.zero. */
-    if (nota || !notb) {
     if (*alpha == 0.f) {
 	if (*beta == 0.f) {
 	    i__1 = *n;
@@ -326,7 +325,6 @@
 	    }
 	}
 	return 0;
-    }
     }
 
 /*     Start the operations. */

@@ -11,7 +11,7 @@
 */
 
 #include "f2c.h"
-
+#include "vec-utils.h"
 /* > \brief \b DGEMM */
 
 /*  =========== DOCUMENTATION =========== */
@@ -200,12 +200,12 @@
 /* > */
 /*  ===================================================================== */
 /* Subroutine */ int dgemm_(char *transa, char *transb, integer *m, integer *
-	n, integer *k, doublereal *alpha, doublereal *a, integer *lda, 
-	doublereal *b, integer *ldb, doublereal *beta, doublereal *c__, 
+	n, integer *k, doublereal *alpha, doublereal *a, integer *lda,
+	doublereal *b, integer *ldb, doublereal *beta, doublereal *c__,
 	integer *ldc, ftnlen transa_len, ftnlen transb_len)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2, 
+    integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
 	    i__3;
 
     /* Local variables */
@@ -218,32 +218,32 @@
     extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
-/*  -- Reference BLAS level3 routine (version 3.7.0) -- */
-/*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    -- */
-/*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..-- */
-/*     December 2016 */
+    /*  -- Reference BLAS level3 routine (version 3.7.0) -- */
+    /*  -- Reference BLAS is a software package provided by Univ. of Tennessee,    -- */
+    /*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..-- */
+    /*     December 2016 */
 
-/*     .. Scalar Arguments .. */
-/*     .. */
-/*     .. Array Arguments .. */
-/*     .. */
+    /*     .. Scalar Arguments .. */
+    /*     .. */
+    /*     .. Array Arguments .. */
+    /*     .. */
 
-/*  ===================================================================== */
+    /*  ===================================================================== */
 
-/*     .. External Functions .. */
-/*     .. */
-/*     .. External Subroutines .. */
-/*     .. */
-/*     .. Intrinsic Functions .. */
-/*     .. */
-/*     .. Local Scalars .. */
-/*     .. */
-/*     .. Parameters .. */
-/*     .. */
+    /*     .. External Functions .. */
+    /*     .. */
+    /*     .. External Subroutines .. */
+    /*     .. */
+    /*     .. Intrinsic Functions .. */
+    /*     .. */
+    /*     .. Local Scalars .. */
+    /*     .. */
+    /*     .. Parameters .. */
+    /*     .. */
 
-/*     Set  NOTA  and  NOTB  as  true if  A  and  B  respectively are not */
-/*     transposed and set  NROWA, NCOLA and  NROWB  as the number of rows */
-/*     and  columns of  A  and the  number of  rows  of  B  respectively. */
+    /*     Set  NOTA  and  NOTB  as  true if  A  and  B  respectively are not */
+    /*     transposed and set  NROWA, NCOLA and  NROWB  as the number of rows */
+    /*     and  columns of  A  and the  number of  rows  of  B  respectively. */
 
     /* Parameter adjustments */
     a_dim1 = *lda;
@@ -260,199 +260,251 @@
     nota = lsame_(transa, "N", (ftnlen)1, (ftnlen)1);
     notb = lsame_(transb, "N", (ftnlen)1, (ftnlen)1);
     if (nota) {
-	nrowa = *m;
-	ncola = *k;
+      nrowa = *m;
+      ncola = *k;
     } else {
-	nrowa = *k;
-	ncola = *m;
+      nrowa = *k;
+      ncola = *m;
     }
     if (notb) {
-	nrowb = *k;
+      nrowb = *k;
     } else {
-	nrowb = *n;
+      nrowb = *n;
     }
 
-/*     Test the input parameters. */
+    /*     Test the input parameters. */
 
     info = 0;
     if (! nota && ! lsame_(transa, "C", (ftnlen)1, (ftnlen)1) && ! lsame_(
-	    transa, "T", (ftnlen)1, (ftnlen)1)) {
-	info = 1;
-    } else if (! notb && ! lsame_(transb, "C", (ftnlen)1, (ftnlen)1) && ! 
-	    lsame_(transb, "T", (ftnlen)1, (ftnlen)1)) {
-	info = 2;
+                                                                          transa, "T", (ftnlen)1, (ftnlen)1)) {
+      info = 1;
+    } else if (! notb && ! lsame_(transb, "C", (ftnlen)1, (ftnlen)1) && !
+               lsame_(transb, "T", (ftnlen)1, (ftnlen)1)) {
+      info = 2;
     } else if (*m < 0) {
-	info = 3;
+      info = 3;
     } else if (*n < 0) {
-	info = 4;
+      info = 4;
     } else if (*k < 0) {
-	info = 5;
+      info = 5;
     } else if (*lda < max(1,nrowa)) {
-	info = 8;
+      info = 8;
     } else if (*ldb < max(1,nrowb)) {
-	info = 10;
+      info = 10;
     } else if (*ldc < max(1,*m)) {
-	info = 13;
+      info = 13;
     }
     if (info != 0) {
-	xerbla_("DGEMM ", &info, (ftnlen)6);
-	return 0;
+      xerbla_("DGEMM ", &info, (ftnlen)6);
+      return 0;
     }
-
-/*     Quick return if possible. */
 
     if (*m == 0 || *n == 0 || (*alpha == 0. || *k == 0) && *beta == 1.) {
-	return 0;
+      return 0;
     }
-
-/*     And if  alpha.eq.zero. */
 
     if (*alpha == 0.) {
-	if (*beta == 0.) {
-	    i__1 = *n;
-	    for (j = 1; j <= i__1; ++j) {
-		i__2 = *m;
-		for (i__ = 1; i__ <= i__2; ++i__) {
-		    c__[i__ + j * c_dim1] = 0.;
-/* L10: */
-		}
-/* L20: */
-	    }
-	} else {
-	    i__1 = *n;
-	    for (j = 1; j <= i__1; ++j) {
-		i__2 = *m;
-		for (i__ = 1; i__ <= i__2; ++i__) {
-		    c__[i__ + j * c_dim1] = *beta * c__[i__ + j * c_dim1];
-/* L30: */
-		}
-/* L40: */
-	    }
-	}
-	return 0;
+      if (*beta == 0.) {
+        i__1 = *n;
+        for (j = 1; j <= i__1; ++j) {
+          i__2 = *m;
+          for (i__ = 1; i__ <= i__2; ++i__) {
+            c__[i__ + j * c_dim1] = 0.;
+          }
+        }
+      } else {
+        i__1 = *n;
+        for (j = 1; j <= i__1; ++j) {
+          i__2 = *m;
+          for (i__ = 1; i__ <= i__2; ++i__) {
+            c__[i__ + j * c_dim1] = *beta * c__[i__ + j * c_dim1];
+          }
+        }
+      }
+      return 0;
     }
-
-/*     Start the operations. */
-
     if (notb) {
-	if (nota) {
+      if (nota) {
+        setvcfg0(VFP64,VFP64,VFP64,VFP64);
+        setvcfg2(VFP64,SFP64,SFP64,SFP64);
+        setvcfg4(SFP64,SFP64,SFP64,SFP64);
+        int vl = 0;
+        double* ca;
+        double* cb;
+        i__ = 0;
+        i__1 = *n;
+        i__2 = *k;
+        i__3 = *m;
+        ca = a;
+        cb = b;
+        asm volatile ("vinsert v5, %0, x0" : : "r" (*alpha));
+        asm volatile ("vinsert v6, %0, x0" : : "r" (*beta));
+        while (i__3 - i__ > 0) {
+          setvl(vl, i__3 - i__);
+          j = 1;
+          for (j = 1; j <= i__1 - 4; j += 4) {
+            asm volatile ("vsne v0, v0, v0");
+            asm volatile ("vsne v1, v0, v0");
+            asm volatile ("vsne v2, v0, v0");
+            asm volatile ("vsne v3, v0, v0");
+            ca = a + i__ + 1 + a_dim1;
+            cb = b + 1 + j * b_dim1;
+            for (l = 1; l <= i__2; ++l) {
+              asm volatile ("vld v4, 0(%0)" : : "r" (ca));
+              asm volatile ("vinsert v8, %0, x0" : : "r" (cb[0]));
+              asm volatile ("vinsert v9, %0, x0" : : "r" (cb[b_dim1]));
+              asm volatile ("vinsert v10, %0, x0" : : "r" (cb[b_dim1*2]));
+              asm volatile ("vinsert v11, %0, x0" : : "r" (cb[b_dim1*3]));
+              asm volatile ("vmadd v0, v4, v8,  v0");
+              asm volatile ("vmadd v1, v4, v9,  v1");
+              asm volatile ("vmadd v2, v4, v10, v2");
+              asm volatile ("vmadd v3, v4, v11, v3");
+              ca += a_dim1;
+              cb += 1;
+            }
+            asm volatile ("vmul v0, v0, v5");
+            asm volatile ("vmul v1, v1, v5");
+            asm volatile ("vmul v2, v2, v5");
+            asm volatile ("vmul v3, v3, v5");
+            if (*beta != 0.f) {
+              asm volatile ("vld v4, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1]));
+              asm volatile ("vmadd v0, v4, v6, v0");
+              asm volatile ("vld v4, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1]));
+              asm volatile ("vmadd v1, v4, v6, v1");
+              asm volatile ("vld v4, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1 * 2]));
+              asm volatile ("vmadd v2, v4, v6, v2");
+              asm volatile ("vld v4, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1 * 3]));
+              asm volatile ("vmadd v3, v4, v6, v3");
+            }
+            asm volatile ("vst v0, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1]));
+            asm volatile ("vst v1, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1]));
+            asm volatile ("vst v2, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1 * 2]));
+            asm volatile ("vst v3, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1 * 3]));
+          }
+          for (; j <= i__1; ++j) {
+            asm volatile ("vsne v0, v0, v0");
+            ca = a + i__ + 1 + a_dim1;
+            cb = b + 1 + j * b_dim1;
+            for (l = 1; l <= i__2; ++l) {
+              asm volatile ("vld v4, 0(%0)" : : "r" (ca));
+              asm volatile ("vinsert v8, %0, x0" : : "r" (*cb));
+              asm volatile ("vmadd v0, v4, v8, v0");
+              ca += a_dim1;
+              cb += 1;
+            }
+            asm volatile ("vmul v0, v0, v5");
+            if (*beta != 0.f) {
+              asm volatile ("vld v1, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1]));
+              asm volatile ("vmadd v0, v1, v6, v0");
+            }
+            asm volatile ("vst v0, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1]));
+          }
+            i__ += vl;
+        }
+      } else {
+        double* ta = malloc(*k * *m * sizeof(double));
 
-/*           Form  C := alpha*A*B + beta*C. */
-
-	    i__1 = *n;
-	    for (j = 1; j <= i__1; ++j) {
-		if (*beta == 0.) {
-		    i__2 = *m;
-		    for (i__ = 1; i__ <= i__2; ++i__) {
-			c__[i__ + j * c_dim1] = 0.;
-/* L50: */
-		    }
-		} else if (*beta != 1.) {
-		    i__2 = *m;
-		    for (i__ = 1; i__ <= i__2; ++i__) {
-			c__[i__ + j * c_dim1] = *beta * c__[i__ + j * c_dim1];
-/* L60: */
-		    }
-		}
-		i__2 = *k;
-		for (l = 1; l <= i__2; ++l) {
-		    temp = *alpha * b[l + j * b_dim1];
-		    i__3 = *m;
-		    for (i__ = 1; i__ <= i__3; ++i__) {
-			c__[i__ + j * c_dim1] += temp * a[i__ + l * a_dim1];
-/* L70: */
-		    }
-/* L80: */
-		}
-/* L90: */
-	    }
-	} else {
-
-/*           Form  C := alpha*A**T*B + beta*C */
-
-	    i__1 = *n;
-	    for (j = 1; j <= i__1; ++j) {
-		i__2 = *m;
-		for (i__ = 1; i__ <= i__2; ++i__) {
-		    temp = 0.;
-		    i__3 = *k;
-		    for (l = 1; l <= i__3; ++l) {
-			temp += a[l + i__ * a_dim1] * b[l + j * b_dim1];
-/* L100: */
-		    }
-		    if (*beta == 0.) {
-			c__[i__ + j * c_dim1] = *alpha * temp;
-		    } else {
-			c__[i__ + j * c_dim1] = *alpha * temp + *beta * c__[
-				i__ + j * c_dim1];
-		    }
-/* L110: */
-		}
-/* L120: */
-	    }
-	}
+        for (i__ = 1; i__ <= *m; i__++)
+          for (l = 1; l <= *k; l++)
+            {
+              ta[i__ - 1 + (l - 1) * *m] = a[l + i__ * a_dim1];
+            }
+        dgemm_("N", "N", m, n, k, alpha, ta, m, b + b_offset, ldb, beta, c__ + c_offset, ldc, 1, 1);
+        free(ta);
+        return 0;
+      }
     } else {
-	if (nota) {
+      if (nota) {
+        setvcfg0(VFP64,VFP64,VFP64,VFP64);
+        setvcfg2(VFP64,SFP64,SFP64,SFP64);
+        setvcfg4(SFP64,SFP64,SFP64,SFP64);
+/*           Form  C := alpha*A*B + beta*C. */
+          int vl = 0;
+          double* ca;
+          double* cb;
+          i__ = 0;
+          i__1 = *n;
+          i__2 = *k;
+          i__3 = *m;
+          ca = a;
+          cb = b;
+          asm volatile ("vinsert v5, %0, x0" : : "r" (*alpha));
+          asm volatile ("vinsert v6, %0, x0" : : "r" (*beta));
+          while (i__3 - i__ > 0) {
+            setvl(vl, i__3 - i__);
+            j = 1;
+             for (j = 1; j <= i__1 - 4; j += 4) {
+              asm volatile ("vsne v0, v0, v0");
+              asm volatile ("vsne v1, v0, v0");
+              asm volatile ("vsne v2, v0, v0");
+              asm volatile ("vsne v3, v0, v0");
+              ca = a + i__ + 1 + a_dim1;
+              cb = b + j + b_dim1;
+              for (l = 1; l <= i__2; ++l) {
+                asm volatile ("vld v4, 0(%0)" : : "r" (ca));
+                asm volatile ("vinsert v8, %0, x0"  : : "r" (cb[0]));
+                asm volatile ("vinsert v9, %0, x0"  : : "r" (cb[1]));
+                asm volatile ("vinsert v10, %0, x0" : : "r" (cb[2]));
+                asm volatile ("vinsert v11, %0, x0" : : "r" (cb[3]));
+                asm volatile ("vmadd v0, v4, v8,  v0");
+                asm volatile ("vmadd v1, v4, v9,  v1");
+                asm volatile ("vmadd v2, v4, v10, v2");
+                asm volatile ("vmadd v3, v4, v11, v3");
+                ca += a_dim1;
+                cb += b_dim1;
+              }
+              asm volatile ("vmul v0, v0, v5");
+              asm volatile ("vmul v1, v1, v5");
+              asm volatile ("vmul v2, v2, v5");
+              asm volatile ("vmul v3, v3, v5");
+              if (*beta != 0.f) {
+                asm volatile ("vld v4, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1]));
+                asm volatile ("vmadd v0, v4, v6, v0");
+                asm volatile ("vld v4, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1]));
+                asm volatile ("vmadd v1, v4, v6, v1");
+                asm volatile ("vld v4, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1 * 2]));
+                asm volatile ("vmadd v2, v4, v6, v2");
+                asm volatile ("vld v4, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1 * 3]));
+                asm volatile ("vmadd v3, v4, v6, v3");
 
-/*           Form  C := alpha*A*B**T + beta*C */
+              }
+              asm volatile ("vst v0, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1]));
+              asm volatile ("vst v1, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1]));
+              asm volatile ("vst v2, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1 * 2]));
+              asm volatile ("vst v3, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1 + c_dim1 * 3]));
+            }
+            for (; j <= i__1; ++j) {
+              asm volatile ("vsne v0, v0, v0");
+              ca = a + i__ + 1 + a_dim1;
+              cb = b + j + b_dim1;
+              for (l = 1; l <= i__2; ++l) {
+                asm volatile ("vld v4, 0(%0)" : : "r" (ca));
+                asm volatile ("vinsert v8, %0, x0" : : "r" (cb[0]));
+                asm volatile ("vmadd v0, v4, v8, v0");
+                ca += a_dim1;
+                cb += b_dim1;
+              }
+              asm volatile ("vmul v0, v0, v5");
+              if (*beta != 0.f) {
+                asm volatile ("vld v1, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1]));
+                asm volatile ("vmadd v0, v1, v6, v0");
+              }
+              asm volatile ("vst v0, 0(%0)" : : "r" (&c__[i__ + 1 + j * c_dim1]));
+            }
+            i__ += vl;
+          }
+      } else {
+        double* ta = malloc(*k * *m * sizeof(double));
 
-	    i__1 = *n;
-	    for (j = 1; j <= i__1; ++j) {
-		if (*beta == 0.) {
-		    i__2 = *m;
-		    for (i__ = 1; i__ <= i__2; ++i__) {
-			c__[i__ + j * c_dim1] = 0.;
-/* L130: */
-		    }
-		} else if (*beta != 1.) {
-		    i__2 = *m;
-		    for (i__ = 1; i__ <= i__2; ++i__) {
-			c__[i__ + j * c_dim1] = *beta * c__[i__ + j * c_dim1];
-/* L140: */
-		    }
-		}
-		i__2 = *k;
-		for (l = 1; l <= i__2; ++l) {
-		    temp = *alpha * b[j + l * b_dim1];
-		    i__3 = *m;
-		    for (i__ = 1; i__ <= i__3; ++i__) {
-			c__[i__ + j * c_dim1] += temp * a[i__ + l * a_dim1];
-/* L150: */
-		    }
-/* L160: */
-		}
-/* L170: */
-	    }
-	} else {
-
-/*           Form  C := alpha*A**T*B**T + beta*C */
-
-	    i__1 = *n;
-	    for (j = 1; j <= i__1; ++j) {
-		i__2 = *m;
-		for (i__ = 1; i__ <= i__2; ++i__) {
-		    temp = 0.;
-		    i__3 = *k;
-		    for (l = 1; l <= i__3; ++l) {
-			temp += a[l + i__ * a_dim1] * b[j + l * b_dim1];
-/* L180: */
-		    }
-		    if (*beta == 0.) {
-			c__[i__ + j * c_dim1] = *alpha * temp;
-		    } else {
-			c__[i__ + j * c_dim1] = *alpha * temp + *beta * c__[
-				i__ + j * c_dim1];
-		    }
-/* L190: */
-		}
-/* L200: */
-	    }
-	}
+        for (i__ = 1; i__ <= *m; i__++)
+          for (l = 1; l <= *k; l++)
+            {
+            ta[i__ - 1 + (l - 1) * *m] = a[l + i__ * a_dim1];
+            }
+        dgemm_("N", "T", m, n, k, alpha, ta, m, b + b_offset, ldb, beta, c__ + c_offset, ldc, 1, 1);
+        free(ta);
+        return 0;
+      }
     }
-
     return 0;
-
-/*     End of DGEMM . */
-
 } /* dgemm_ */
-
